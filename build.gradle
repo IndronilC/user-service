@@ -1,0 +1,77 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '4.0.1'
+	id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.shawbindro'
+version = '0.0.1-SNAPSHOT'
+description = 'A Playground with Spring boot for JDK 21'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+	implementation 'org.springframework.boot:spring-boot-h2console'
+	runtimeOnly 'com.h2database:h2'
+	compileOnly 'org.projectlombok:lombok'
+	runtimeOnly 'org.postgresql:postgresql'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-actuator-test'
+	testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
+	testImplementation 'org.springframework.boot:spring-boot-starter-validation-test'
+	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	testCompileOnly 'org.projectlombok:lombok'
+	testAnnotationProcessor 'org.projectlombok:lombok'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+tasks.withType(Test).configureEach {
+	onlyIf { !project.hasProperty("skipTests") }
+}
+
+
+tasks.register('dockerUp', Exec) {
+	group = 'docker'
+	description = 'Start PostgreSQL using Docker Compose'
+	commandLine 'docker', 'compose', 'up', '-d'
+}
+
+tasks.register('dockerDown', Exec) {
+	group = 'docker'
+	description = 'Stop PostgreSQL containers'
+	commandLine 'docker', 'compose', 'down'
+}
+
+tasks.named('bootRun') {
+	dependsOn 'dockerUp'
+}
+
+tasks.register('dockerClean', Exec) {
+	group = 'docker'
+	description = 'Stop containers and remove volumes for the application'
+
+	commandLine 'docker-compose', 'down', '--volumes', '--remove-orphans'
+}
