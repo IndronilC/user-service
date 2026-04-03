@@ -1,12 +1,15 @@
 package com.shawbindro.userservice.user.controllers;
 
 
+import com.shawbindro.userservice.user.config.security.util.JwtUtility;
 import com.shawbindro.userservice.user.exceptions.UserNotFoundException;
 import com.shawbindro.userservice.user.models.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import com.shawbindro.userservice.user.services.UserService;
 
@@ -22,6 +25,9 @@ import java.util.Map;
 public class UserController {
 
    private final UserService userService;
+   @Autowired
+   private JwtUtility jwtUtil;
+
 //    private static Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @GetMapping
@@ -32,9 +38,6 @@ public class UserController {
         log.debug("DEBUG - Handled by thread: " + Thread.currentThread());
         return new ResponseEntity<>(userService.fetchAllUsers(),  HttpStatus.OK);
     }
-
-
-
     @GetMapping("/{id}")
     public ResponseEntity<User> getUser(@PathVariable String id){
         log.info("Request received for user: {}", id);
@@ -49,13 +52,11 @@ public class UserController {
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
-
     @PostMapping
     public ResponseEntity<String> createUser(@RequestBody  User user){
         userService.addUser(user);
         return ResponseEntity.ok("User added successfully");
     }
-
     @PutMapping("/{id}")
     public ResponseEntity<String> updateUser(@PathVariable String id,
                                              @RequestBody User updateUser){
@@ -76,5 +77,21 @@ public class UserController {
 
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
+
+    @GetMapping("/profile")
+    public ResponseEntity<?> getProfile(Authentication authentication) {
+
+        String email = (String) authentication.getPrincipal();
+
+        User user = userService.getUserByEmail(email);
+
+        return ResponseEntity.ok(user);
+    }
+
+    @GetMapping("/test-secure")
+    public String testSecure() {
+        return "secured";
+    }
+
 
 }
