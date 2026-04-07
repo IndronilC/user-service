@@ -10,11 +10,12 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.context.SecurityContextHolderFilter;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-@EnableMethodSecurity(securedEnabled = true)
+//@EnableMethodSecurity(securedEnabled = true)
 public class UserServiceSecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
@@ -22,19 +23,22 @@ public class UserServiceSecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-                .cors(cors -> {}) // 🔥 must be enabled
-                .csrf(csrf -> csrf.disable())
-                // 🔥 ADD THIS BLOCK HERE
-                .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint((request, response, authException) -> {
-                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                        })
-                )
+                .securityMatcher("/**")
+                .cors(cors -> {})
+                .csrf(csrf -> csrf
+                .disable()
+        )
+                .headers(headers -> headers.frameOptions(frame -> frame.disable()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/").permitAll()
+                        .requestMatchers("/h2-console/**").permitAll()
                         .anyRequest().authenticated()
-                ).addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-
+                )
+              //  .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+               // .addFilterBefore(jwtAuthFilter, SecurityContextHolderFilter.class);
+                .addFilterBefore(jwtAuthFilter,
+                        org.springframework.security.web.authentication.www.BasicAuthenticationFilter.class);
         return http.build();
     }
 }

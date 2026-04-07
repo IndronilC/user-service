@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
+import java.util.List;
 
 
 @Slf4j
@@ -38,6 +39,14 @@ public class JwtUtility {
         return extractAllClaims(token).getSubject(); // 👈 usually userId
     }
 
+    public String extractRole(String token) {
+        List<String> authorities =
+                extractAllClaims(token).get("authorities", List.class);
+
+        return authorities != null && !authorities.isEmpty()
+                ? authorities.get(0)
+                : null;
+    }
     public boolean isTokenValid(String token) {
         try {
             extractAllClaims(token);
