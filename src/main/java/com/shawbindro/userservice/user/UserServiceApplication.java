@@ -13,10 +13,10 @@ import java.util.List;
 
 @Slf4j
 @SpringBootApplication
-public class VirtualThreadExamoleApplication {
+public class UserServiceApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(VirtualThreadExamoleApplication.class, args);
+		SpringApplication.run(UserServiceApplication.class, args);
 		log.info("🚀 Application started");
 	}
 

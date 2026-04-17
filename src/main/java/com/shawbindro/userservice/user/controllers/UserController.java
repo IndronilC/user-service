@@ -1,7 +1,10 @@
 package com.shawbindro.userservice.user.controllers;
 
 
+import com.shawbindro.userservice.user.config.security.CustomUserDetails;
 import com.shawbindro.userservice.user.config.security.util.JwtUtility;
+import com.shawbindro.userservice.user.data.mappers.UserMapper;
+import com.shawbindro.userservice.user.dtos.UserResponse;
 import com.shawbindro.userservice.user.exceptions.UserNotFoundException;
 import com.shawbindro.userservice.user.models.User;
 import lombok.RequiredArgsConstructor;
@@ -78,7 +81,7 @@ public class UserController {
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
 
-    @GetMapping("/profile")
+    /*@GetMapping("/profile")
     public ResponseEntity<?> getProfile(Authentication authentication) {
 
         String email = (String) authentication.getPrincipal();
@@ -86,6 +89,20 @@ public class UserController {
         User user = userService.getUserByEmail(email);
 
         return ResponseEntity.ok(user);
+    }*/
+
+    @GetMapping("/profile")
+    public ResponseEntity<UserResponse> getProfile(Authentication authentication) {
+
+        if (!(authentication.getPrincipal() instanceof CustomUserDetails userDetails)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        String email = userDetails.getEmail();
+
+        User user = userService.getUserByEmail(email);
+
+        return ResponseEntity.ok(UserMapper.toResponse(user));
     }
 
     @GetMapping("/test-secure")

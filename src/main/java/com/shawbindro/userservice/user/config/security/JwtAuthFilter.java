@@ -2,6 +2,7 @@ package com.shawbindro.userservice.user.config.security;
 
 import com.shawbindro.userservice.user.config.security.util.JwtUtility;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,8 +18,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -47,51 +48,64 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         String authHeader = request.getHeader("Authorization");
 
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
-            String token = authHeader.substring(7);
+        String token = authHeader.substring(7);
 
-            boolean isValid = jwtUtility.isTokenValid(token);
-            log.info("Valid: " + isValid);
+        try {
+            // 🔥 STEP 1: Parse FIRST (this throws exception if expired)
+            Claims claims = jwtUtility.extractAllClaims(token);
 
-            if (isValid) {
-                Claims claims = jwtUtility.extractAllClaims(token);
-                log.info("ALL CLAIMS: " + claims);
+            String userId = claims.get("userId", String.class);
+            String email = claims.getSubject();
 
-                String userId = jwtUtility.extractUserId(token);
-                log.info("userId " + userId);
+            List<String> roles = claims.get("authorities", List.class);
 
+            List<GrantedAuthority> authorities = roles.stream()
+                    .map(SimpleGrantedAuthority::new)
+                    .collect(Collectors.toList());
 
-              String role = jwtUtility.extractRole(token);
+            if (roles == null || roles.isEmpty()) {
+                roles = List.of("ROLE_CUSTOMER");
+            }
 
-                if (role == null || role.isBlank()) {
-                    role = "USER"; // ✅ fallback
-                }
+            CustomUserDetails userDetails =
+                    new CustomUserDetails(userId, email, authorities);
 
-                List<GrantedAuthority> authorities =
-                        List.of(new SimpleGrantedAuthority("ROLE_" + role));
+            // 🔥 STEP 2: Now validation (safe)
+            if (jwtUtility.isTokenValid(token)) {
 
-                User principal = new User(
-                        userId,
-                        "",
-                        authorities
-                );
-
-                UsernamePasswordAuthenticationToken auth =
+                UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(
-                                principal,
+                                userDetails,
                                 null,
-                                authorities
+                                userDetails.getAuthorities()
                         );
 
-                SecurityContextHolder.getContext().setAuthentication(auth);
-                log.info("Auth Object: " + SecurityContextHolder.getContext().getAuthentication());
-                log.info("Authorities: " + SecurityContextHolder.getContext().getAuthentication().getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+
+                log.info("Auth set for user: " + email);
             }
+
+        } catch (ExpiredJwtException e) {
+            log.warn("Token expired");
+
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // ✅ KEY
+            return;
+
+        } catch (Exception e) {
+            log.error("Invalid token");
+
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            return;
         }
 
         filterChain.doFilter(request, response);
     }
+
 }
 
 

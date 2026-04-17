@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.List;
+import java.util.function.Function;
 
 
 @Slf4j
@@ -47,6 +48,14 @@ public class JwtUtility {
                 ? authorities.get(0)
                 : null;
     }
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+        final Claims claims = extractAllClaims(token);
+        return claimsResolver.apply(claims);
+    }
+    public String extractUsername(String token) {
+        return extractClaim(token, Claims::getSubject);
+    }
+
     public boolean isTokenValid(String token) {
         try {
             extractAllClaims(token);

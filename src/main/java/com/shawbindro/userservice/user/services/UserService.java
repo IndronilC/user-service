@@ -2,11 +2,7 @@ package com.shawbindro.userservice.user.services;
 
 
 
-import com.shawbindro.userservice.user.dtos.AddressDTO;
-import com.shawbindro.userservice.user.dtos.UserRequest;
-import com.shawbindro.userservice.user.dtos.UserResponse;
 import com.shawbindro.userservice.user.exceptions.UserNotFoundException;
-import com.shawbindro.userservice.user.models.Address;
 import com.shawbindro.userservice.user.models.User;
 import com.shawbindro.userservice.user.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +11,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
