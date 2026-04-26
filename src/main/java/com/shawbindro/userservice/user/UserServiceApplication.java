@@ -20,7 +20,7 @@ public class UserServiceApplication {
 		log.info("🚀 Application started");
 	}
 
-	@Bean
+/*	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 
 		CorsConfiguration config = new CorsConfiguration();
@@ -35,7 +35,7 @@ public class UserServiceApplication {
 		source.registerCorsConfiguration("/**", config);
 
 		return source;
-	}
+	}*/
 
 
 }

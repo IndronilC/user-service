@@ -7,19 +7,19 @@ services:
     restart: unless-stopped
 
     environment:
-      POSTGRES_DB: userdb
+      POSTGRES_DB: veendibazaar_customer_db
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: darga@786
 
 
     ports:
-      - "5432:5432"
+      - "5433:5432"
 
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U myuser -d mydb"]
+      test: ["CMD-SHELL", "pg_isready -U admin -d veendibazaar_customer_db"]
       interval: 10s
       timeout: 5s
       retries: 5

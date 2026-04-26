@@ -23,15 +23,13 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/users")
+@RequestMapping("/users")
 @Slf4j
 public class UserController {
 
    private final UserService userService;
    @Autowired
    private JwtUtility jwtUtil;
-
-//    private static Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @GetMapping
     public ResponseEntity<List<User>>
@@ -80,16 +78,6 @@ public class UserController {
 
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
-
-    /*@GetMapping("/profile")
-    public ResponseEntity<?> getProfile(Authentication authentication) {
-
-        String email = (String) authentication.getPrincipal();
-
-        User user = userService.getUserByEmail(email);
-
-        return ResponseEntity.ok(user);
-    }*/
 
     @GetMapping("/profile")
     public ResponseEntity<UserResponse> getProfile(Authentication authentication) {

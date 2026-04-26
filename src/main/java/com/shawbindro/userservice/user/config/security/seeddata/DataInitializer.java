@@ -14,24 +14,32 @@ public class DataInitializer {
     CommandLineRunner initDatabase(UserRepository userRepository) {
         return args -> {
 
-            String email = "chakraborty.indranil@gmail.com";
+            String customerEmailFirst = "chakraborty.indranil@gmail.com";
+            String customerEmailSecond = "sabaridatta@gmail.com";
 
-            // ✅ Check if user already exists
-            if (userRepository.findByEmail(email).isEmpty()) {
+            // First user
+            if (userRepository.findByEmail(customerEmailFirst).isEmpty()) {
+                User user1 = new User();
+                user1.setUsername("Indranil Chakraborty");
+                user1.setFirstName("Indranil");
+                user1.setLastName("Chakraborty");
+                user1.setEmail(customerEmailFirst);
 
-                User user = new User();
-              //👈 must match JWT if using userId later
-                user.setUsername("Indranil Chakraborty");
-                user.setFirstName("Indranil");
-                user.setLastName("Chakraborty");
-                user.setEmail(email);
+                userRepository.save(user1);
+                log.info("✅ Seed user created: " + customerEmailFirst);
+            }
 
-                userRepository.save(user);
+            // Second user
+            if (userRepository.findByEmail(customerEmailSecond).isEmpty()) {
+                User user2 = new User();
+                user2.setUsername("Sabari Dutta");
+                user2.setFirstName("Sabari");
+                user2.setLastName("Dutta");
+                user2.setEmail(customerEmailSecond);
 
-                log.info("✅ Seed user created: " + email);
-            } else {
-                log.info("ℹ️ Seed user already exists");
+                userRepository.save(user2);
+                log.info("✅ Seed user created: " + customerEmailSecond);
             }
         };
     }
-}
+  }

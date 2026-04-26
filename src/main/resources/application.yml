@@ -1,21 +1,21 @@
 spring:
   application:
-    name: User Service
+    name: user-service
 
   threads:
     virtual:
       enabled: true
 
-#  datasource:
-#    url: jdbc:postgresql://localhost:5432/userdb?TimeZone=Asia/Kolkata
-#    username: admin
-#    password: darga@786
-#    driver-class-name: org.postgresql.Driver
   datasource:
-    url: jdbc:h2:mem:test
-    driver-class-name: org.h2.Driver
-    username: sa
-    password: admin
+    url: jdbc:postgresql://localhost:5433/veendibazaar_customer_db?TimeZone=Asia/Kolkata
+    username: admin
+    password: darga@786
+    driver-class-name: org.postgresql.Driver
+#  datasource:
+#    url: jdbc:h2:mem:test
+#    driver-class-name: org.h2.Driver
+#    username: sa
+#    password: admin
 
     hikari:
       maximum-pool-size: 20
@@ -34,10 +34,10 @@ spring:
         format_sql: true
         jdbc:
           time_zone: Asia/Kolkata
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
+#  h2:
+#    console:
+#      enabled: true
+#      path: /h2-console
 
 logging:
   level:
@@ -52,4 +52,8 @@ application:
       refresh-token:
         expiration: 604800000 # 7 days
 
+server:
+  servlet:
+    context-path: /api/v1
+  port: 8082
 
