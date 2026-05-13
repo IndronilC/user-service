@@ -82,17 +82,16 @@ public class UserController {
     @GetMapping("/profile")
     public ResponseEntity<UserResponse> getProfile(Authentication authentication) {
 
-        if (!(authentication.getPrincipal() instanceof CustomUserDetails userDetails)) {
+        if (authentication == null || authentication.getPrincipal() == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        String email = userDetails.getEmail();
+        String email = authentication.getPrincipal().toString();
 
         User user = userService.getUserByEmail(email);
 
         return ResponseEntity.ok(UserMapper.toResponse(user));
     }
-
     @GetMapping("/test-secure")
     public String testSecure() {
         return "secured";
