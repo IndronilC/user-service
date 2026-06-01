@@ -11,11 +11,6 @@ spring:
     username: admin
     password: darga@786
     driver-class-name: org.postgresql.Driver
-#  datasource:
-#    url: jdbc:h2:mem:test
-#    driver-class-name: org.h2.Driver
-#    username: sa
-#    password: admin
 
     hikari:
       maximum-pool-size: 20
@@ -26,7 +21,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: validate   # use update / validate / none in prod
+      ddl-auto: validate
     show-sql: true
     open-in-view: false
     properties:
@@ -34,26 +29,47 @@ spring:
         format_sql: true
         jdbc:
           time_zone: Asia/Kolkata
-#  h2:
-#    console:
-#      enabled: true
-#      path: /h2-console
+
+  kafka:
+    bootstrap-servers: localhost:9092
+
+    consumer:
+      group-id: user-service-group
+      auto-offset-reset: earliest
+
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+      properties:
+        spring.json.trusted.packages: "*"
+        spring.json.value.default.type: com.shawbindro.userservice.user.event.dto.UserCreatedEvent
+
+    listener:
+      missing-topics-fatal: false
 
 logging:
   level:
     root: INFO
-    com.shawbindro.userservice.user.controllers: DEBUG
+
+    org.springframework.kafka: DEBUG
+    org.springframework.kafka.listener: DEBUG
+
+    org.apache.kafka.clients.consumer: INFO
+    org.apache.kafka: DEBUG
+
+    com.shawbindro.userservice.user: DEBUG
 
 application:
   security:
     jwt:
       secret-key: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
-      expiration: 86400000 # a day
+      expiration: 86400000
+
       refresh-token:
-        expiration: 604800000 # 7 days
+        expiration: 604800000
 
 server:
   servlet:
     context-path: /api/v1
-  port: 8082
 
+  port: 8082
